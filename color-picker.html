@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Color Picker</title>
+		<style type="text/css">
+			body{
+				margin: 0;
+			}
+			.colorDisplay{
+				width: 100px;
+				height: 100px;
+				background: #000;
+			}
+			.topContainer{
+				width: 100%;
+				height: 30vh;
+				display: flex;
+				justify-content: space-evenly;
+				align-items: center;
+			}
+			.topColor{
+				width: calc(20% - 20px);
+				height: 125px;
+				background: #000;
+
+			}
+
+			.bottomContainer{
+				width: 100%;
+				height: 70vh;
+				background: #ddd;
+				display: flex;
+				align-items: center;
+			}
+			.bottomLeft{
+				display: flex;
+				flex-direction: row;
+				flex-flow: wrap;
+				width: 30%;
+				margin: 0 10%;
+			}
+			.colorOption{
+				width: 75px;
+				height: 75px;
+				margin: 2px;
+				background: #000;
+			}
+			.bottomRight{
+				width: 20%;
+				margin: 0 15%;
+			}
+			.hueOption{
+				width: 100%;
+				height: 40px;
+				background: #000;
+			}
+
+			.chosen{
+				position: relative;
+				transform: scale(1.05);
+			}
+			.chosen::after{
+				content: "";
+				position: absolute;
+				left: -3px;
+				top: -3px;
+				width: calc(100% + 3px );
+				height: calc(100% + 3px );
+				border: #000 2px solid;
+			}
+			#code{
+				position: fixed;
+				left: 5px;
+				bottom: 5px;
+			}
+			#inputCode{
+				position: fixed;
+				bottom: 5px;
+				right: 5px;
+				font-size: 20px;
+				background: #fff9;
+				border: 2px black solid;
+				border-radius: 10px;
+				padding: 2px 10px;
+				font-family: Verdana, Arial;
+				width: 15em;
+			}
+		</style>
+	</head>
+	<body>
+		<div class='topContainer'>
+			<div class="topColor" id="color0"></div>
+			<div class="topColor" id="color1"></div>
+			<div class="topColor" id="color2"></div>
+			<div class="topColor" id="color3"></div>
+			<div class="topColor" id="color4"></div>
+		</div>
+		<div class='bottomContainer'>
+			<div class="bottomLeft">
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+			</div>
+			<div class="bottomRight">
+				<div class="hueOption"></div>
+				<div class="hueOption"></div>
+				<div class="hueOption"></div>
+				<div class="hueOption"></div>
+				<div class="hueOption"></div>
+				<div class="hueOption"></div>
+				<div class="hueOption"></div>
+				<div class="hueOption"></div>
+				<div class="hueOption"></div>
+				<div class="hueOption"></div>
+			</div>
+		</div>
+		<div id="code">11_0.11_0.11_0.11_0.11_0</div>
+		<input type="text" id="inputCode" placeholder="Paste & Press Enter">
+	</body>
+	<script type="text/javascript" defer>
+		// This code is really messy. I kinda threw it together quickly without a plan
+
+		// Object containing all the colors and respective hues
+		var allColors = {
+			red: ['#590d22', '#800f2f', '#a4133c', '#c9184a', '#ff4d6d', '#ff758f', '#ff8fa3', '#ffb3c1', '#ffccd5', '#fff0f3'],
+			orange: ['#ff4800', '#ff5400', '#ff6000', '#ff6d00', '#ff7900', '#ff8500', '#ff9100', '#ff9e00', '#ffaa00', '#ffb600'],
+			yellow: ['#ffd400', '#ffd819', '#ffdd32', '#ffe14c', '#ffe566', '#ffe97f', '#ffee99', '#fff2b2', '#fff6cc', '#fffae5'],
+			green: ['#10451d', '#155d27', '#1a7431', '#208b3a', '#25a244', '#2dc653', '#4ad66d', '#6ede8a', '#92e6a7', '#b7efc5'],
+			green2: ['#081c15', '#1b4332', '#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2', '#b7e4c7', '#d8f3dc'],
+			bluegreen: ['#036666', '#14746f', '#248277', '#358f90', '#469d89', '#56ab91', '#67b99a', '#78c6a3', '#88d4ab', '#99e2b4'],
+			blue: ['#03045e', '#023e8a', '#0077b6', '#0096c7', '#00b4d8', '#48cae4', '#90e0ef', '#ade8f4', '#caf0f8'],
+			blue2: ['#012a4a', '#013a63', '#01497c', '#014f86', '#2a6f97', '#2c7da0', '#468faf', '#61a5c2', '#89c2d9', '#a9d6e5'],
+			blue3: ['#0d47a1', '#1565c0', '#1976d2', '#1e88e5', '#2196f3', '#42a5f5', '#64b5f6', '#90caf9', '#e3f2fd'],
+			purple: ['#6247aa', '#7251b5', '#815ac0', '#9163cb', '#a06cd5', '#b185db', '#c19ee0', '#d2b7e5', '#dac3e8', '#dec9e9'],
+			brown: ['#583101', '#603808', '#6f4518', '#8b5e34', '#a47148', '#bc8a5f', '#d4a276', '#e7bc91', '#f3d5b5', '#ffedd8'],
+			grayscale: ['#212529', '#343a40', '#495057', '#6c757d', '#adb5bd', '#ced4da', '#dee2e6', '#e9ecef', '#f8f9fa']
+		}
+
+		// The selected array contains the color information for each of the 5 boxes
+		// Each item is an array of [color, hue] -- they are both an index value
+		var selected = [[11, 0],[11, 0],[11, 0],[11, 0],[11, 0]];
+		// This is the index of the currently chosen box
+		var current = 0;
+
+		// Sets initial screen conditions
+		updateScreen(current, selected[current][0], selected[current][1]);
+
+
+		// Initiation
+		// Adds events for each of the top 5 boxes
+		for ( var i=0; i<5; i++) {
+			var elem = document.getElementById(`color${i}`);
+			elem.style.backgroundColor = allColors.grayscale[0];
+			addEvent(elem, 'item', i);
+		}
+
+		// Adds events for each of the main color options
+		for ( var i=0; i<Object.keys(allColors).length; i++) {
+			var elem = document.querySelectorAll('.colorOption')[i];
+			// Sets the color for each element. This will not change
+			elem.style.backgroundColor = allColors[Object.keys(allColors)[i]][2];
+			addEvent(elem, 'color', i);
+		}
+
+		// Adds events for each of the hue options
+		for (var i=0; i<10; i++) {
+			var elem = document.querySelectorAll('.hueOption')[i];
+			addEvent(elem, 'hue', i);
+		}
+
+		// Event for code input
+		// Interprets code and sets screen
+		document.getElementById('inputCode').addEventListener('keypress', function(e) {
+			var key = e.key;
+			if (e.key != 'Enter') return;
+			var arr = document.getElementById('inputCode').value.split('.');
+			if (arr.length != 5) return;
+			for ( var i=0; i<5; i++ ) {
+				if (!arr[i].includes('_')) return;
+				selected[i][0] = parseInt(arr[i].split('_')[0]);
+				selected[i][1] = parseInt(arr[i].split('_')[1]);
+			}
+			document.getElementById('inputCode').value = '';
+			setScreen();
+		});
+
+		// This sets the colors initially and also updates screen
+		function setScreen(num) {
+			for ( var i=0; i<5; i++ ) {
+				document.querySelectorAll('.topColor')[i].style.backgroundColor = allColors[Object.keys(allColors)[selected[i][0]]][selected[i][1]];
+			}
+
+			updateScreen(current, selected[current][0], selected[current][1]);
+		}
+
+		// This adds the events for each element
+		function addEvent(elem, type, index) {
+			// This is for the 5 boxes at the top
+			if (type == 'item') {
+				elem.addEventListener('click', function() {
+					// It sets the current to whichever was selected, and updates screen
+					current = index;
+					updateScreen(index, selected[index][0], selected[index][1]);
+				})
+			// This is for the bottom left color options
+			} else if (type == 'color') {
+				elem.addEventListener('click', function() {
+					// It sets the value for the selected color at the current index to color that was picked, and updates screen
+					selected[current][0] = index;
+					updateScreen(-1, index, -1);
+				})
+			// This is for the bottom right hue options
+			} else if (type == 'hue') {
+				elem.addEventListener('click', function() {
+					// It sets the value for the selected hue at the current index to the hue that was picked, and updates screen
+					selected[current][1] = index;
+					updateScreen(-1, -1, index)
+				})
+			}
+		}
+
+		function updateScreen(item, color, index) {
+			// Sets 'chosen' class to the top item that was picked
+			if (item != -1) {
+				for ( var i=document.querySelectorAll('.topColor').length - 1; i>=0; i--) {
+					document.querySelectorAll('.topColor')[i].classList.remove('chosen');
+				}
+				document.querySelectorAll('.topColor')[item].classList.add('chosen');
+			}
+
+			// Sets 'chosen' class, adjusts hues to match color, and updates hues
+			if (color != -1) {
+				// Gets the array for the current color
+				var currentObj = allColors[Object.keys(allColors)[color]];
+
+				// Clears any others, and sets 'chosen' class to current item
+				for ( var i=document.querySelectorAll('.colorOption').length - 1; i>=0; i--) {
+					document.querySelectorAll('.colorOption')[i].classList.remove('chosen');
+				}
+				document.querySelectorAll('.colorOption')[color].classList.add('chosen');
+
+				// Sets the hue to match the selected color
+				for ( var i=0; i<currentObj.length; i++) {
+					document.querySelectorAll('.hueOption')[i].style.backgroundColor = currentObj[i];
+				}
+				// Sets no color if there are less than 10 hues for the color
+				for ( var i=currentObj.length; i<10; i++) {
+					document.querySelectorAll('.hueOption')[i].style.backgroundColor = '#0000';
+				}
+
+				// Sets the top item to match the color
+				document.querySelectorAll('.topColor')[current].style.backgroundColor = currentObj[selected[current][1]];
+				// Also removes extra and changes the 'chosen' class for the hue selection
+				for ( var i=document.querySelectorAll('.hueOption').length - 1; i>=0; i--) {
+					document.querySelectorAll('.hueOption')[i].classList.remove('chosen');
+				}
+				document.querySelectorAll('.hueOption')[selected[current][1]].classList.add('chosen');
+			}
+
+			// Sets the 'chosen' class for the hue that was picked, and updates the top color display
+			if (index != -1) {
+				for ( var i=document.querySelectorAll('.hueOption').length - 1; i>=0; i--) {
+					document.querySelectorAll('.hueOption')[i].classList.remove('chosen');
+				}
+				document.querySelectorAll('.hueOption')[index].classList.add('chosen');
+				document.querySelectorAll('.topColor')[current].style.backgroundColor = allColors[Object.keys(allColors)[selected[current][0]]][index];
+			}
+
+			var code = '';
+			for( var i=0; i<5; i++) {
+				code += selected[i].join('_');
+				if (i != 4) code += '.';
+			}
+			document.getElementById('code').textContent = code;
+		}
+	</script>
+</html>
