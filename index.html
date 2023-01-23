@@ -25,7 +25,7 @@
 				width: calc(20% - 20px);
 				height: 125px;
 				background: #000;
-
+				cursor: pointer;
 			}
 
 			.bottomContainer{
@@ -47,6 +47,26 @@
 				height: 75px;
 				margin: 2px;
 				background: #000;
+				cursor: pointer;
+			}
+			#customColor{	
+				background: #0000;
+				font-family: Verdana, Arial;
+				font-size: 50px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-weight: bolder;
+				user-select: none;
+				position: relative;
+			}
+			#customColorInput{
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				left: 0;
+				top: 0;
+				opacity: 0;
 			}
 			.bottomRight{
 				width: 20%;
@@ -56,6 +76,12 @@
 				width: 100%;
 				height: 40px;
 				background: #000;
+				cursor: pointer;
+				text-align: center;
+				font-size: 20px;
+				font-family: Verdana, Arial;
+				font-weight: bolder;
+				text-shadow: 0 0 3px #fff, 0 0 6px #fff;
 			}
 
 			.chosen{
@@ -112,6 +138,8 @@
 				<div class="colorOption"></div>
 				<div class="colorOption"></div>
 				<div class="colorOption"></div>
+				<div class="colorOption"></div>
+				<div class="colorOption" id="customColor">+<input type="color" id="customColorInput"></div>
 			</div>
 			<div class="bottomRight">
 				<div class="hueOption"></div>
@@ -137,6 +165,7 @@
 			red: ['#590d22', '#800f2f', '#a4133c', '#c9184a', '#ff4d6d', '#ff758f', '#ff8fa3', '#ffb3c1', '#ffccd5', '#fff0f3'],
 			orange: ['#ff4800', '#ff5400', '#ff6000', '#ff6d00', '#ff7900', '#ff8500', '#ff9100', '#ff9e00', '#ffaa00', '#ffb600'],
 			yellow: ['#ffd400', '#ffd819', '#ffdd32', '#ffe14c', '#ffe566', '#ffe97f', '#ffee99', '#fff2b2', '#fff6cc', '#fffae5'],
+			yellowgreen: ['#007f5f', '#2b9348', '#55a630', '#80b918', '#aacc00', '#bfd200', '#d4d700', '#dddf00', '#eeef20', '#ffff3f'],
 			green: ['#10451d', '#155d27', '#1a7431', '#208b3a', '#25a244', '#2dc653', '#4ad66d', '#6ede8a', '#92e6a7', '#b7efc5'],
 			green2: ['#081c15', '#1b4332', '#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2', '#b7e4c7', '#d8f3dc'],
 			bluegreen: ['#036666', '#14746f', '#248277', '#358f90', '#469d89', '#56ab91', '#67b99a', '#78c6a3', '#88d4ab', '#99e2b4'],
@@ -145,12 +174,13 @@
 			blue3: ['#0d47a1', '#1565c0', '#1976d2', '#1e88e5', '#2196f3', '#42a5f5', '#64b5f6', '#90caf9', '#e3f2fd'],
 			purple: ['#6247aa', '#7251b5', '#815ac0', '#9163cb', '#a06cd5', '#b185db', '#c19ee0', '#d2b7e5', '#dac3e8', '#dec9e9'],
 			brown: ['#583101', '#603808', '#6f4518', '#8b5e34', '#a47148', '#bc8a5f', '#d4a276', '#e7bc91', '#f3d5b5', '#ffedd8'],
-			grayscale: ['#212529', '#343a40', '#495057', '#6c757d', '#adb5bd', '#ced4da', '#dee2e6', '#e9ecef', '#f8f9fa']
+			grayscale: ['#212529', '#343a40', '#495057', '#6c757d', '#adb5bd', '#ced4da', '#dee2e6', '#e9ecef', '#f8f9fa'],
+			custom: ['#0000']
 		}
 
 		// The selected array contains the color information for each of the 5 boxes
 		// Each item is an array of [color, hue] -- they are both an index value
-		var selected = [[11, 0],[11, 0],[11, 0],[11, 0],[11, 0]];
+		var selected = [[12, 0],[12, 0],[12, 0],[12, 0],[12, 0]];
 		// This is the index of the currently chosen box
 		var current = 0;
 
@@ -190,11 +220,27 @@
 			for ( var i=0; i<5; i++ ) {
 				if (!arr[i].includes('_')) return;
 				selected[i][0] = parseInt(arr[i].split('_')[0]);
-				selected[i][1] = parseInt(arr[i].split('_')[1]);
+				if (!arr[i].split('_')[1].includes('#')) {
+					selected[i][1] = parseInt(arr[i].split('_')[1]);
+				} else {
+					selected[i][1] = 0;
+					var customColor = arr[i].split('_')[1];
+					allColors.custom[0] = customColor;
+					document.querySelectorAll('.colorOption')[Object.keys(allColors).length - 1].style.backgroundColor = customColor;
+					updateScreen(current, selected[current][0], selected[current][1]);
+				}
 			}
 			document.getElementById('inputCode').value = '';
 			setScreen();
 		});
+
+		document.getElementById('customColorInput').addEventListener('input', function() {
+			var customColor = document.getElementById('customColorInput').value;
+			allColors.custom[0] = customColor;
+			console.log(customColor);
+			document.querySelectorAll('.colorOption')[Object.keys(allColors).length - 1].style.backgroundColor = customColor;
+			updateScreen(current, selected[current][0], selected[current][1]);
+		})
 
 		// This sets the colors initially and also updates screen
 		function setScreen(num) {
@@ -254,10 +300,12 @@
 				// Sets the hue to match the selected color
 				for ( var i=0; i<currentObj.length; i++) {
 					document.querySelectorAll('.hueOption')[i].style.backgroundColor = currentObj[i];
+					document.querySelectorAll('.hueOption')[i].textContent = currentObj[i];
 				}
 				// Sets no color if there are less than 10 hues for the color
 				for ( var i=currentObj.length; i<10; i++) {
 					document.querySelectorAll('.hueOption')[i].style.backgroundColor = '#0000';
+					document.querySelectorAll('.hueOption')[i].textContent = '';
 				}
 
 				// Sets the top item to match the color
@@ -280,7 +328,11 @@
 
 			var code = '';
 			for( var i=0; i<5; i++) {
-				code += selected[i].join('_');
+				if (selected[i][0] != Object.keys(allColors).length - 1)  {
+					code += selected[i].join('_');
+				} else {
+					code += Object.keys(allColors).length - 1 + '_' + allColors.custom[0];
+				}
 				if (i != 4) code += '.';
 			}
 			document.getElementById('code').textContent = code;
